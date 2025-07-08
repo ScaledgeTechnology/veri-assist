@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+}
+h1 {
+    margin-bottom: 50px;
+}
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: inline;
+    max-width: 50%;
+}
