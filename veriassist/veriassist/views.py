@@ -24,7 +24,7 @@ start_ollama()
 
 class Chat:
     def __init__(self):
-        self.model = "llama3.2"
+        self.model = "llama3.1"
         self.history = []
         self.model_name = "veiassist_agent3"
         self.modelfile_path = "Modelfile_veriassist3"
