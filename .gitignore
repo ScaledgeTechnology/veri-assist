@@ -5,4 +5,4 @@
 *.pyc
 
 # Ignore all virtual environment
-**/.venv/
+**/.veri-venv/

@@ -6,11 +6,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatGPT UI Clone</title>
+    <title>VeriAssist</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 <!-- For code and tables -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css">
 
@@ -34,12 +34,12 @@ window.MathJax = {
 
     <style>
         :root {
-            --primary-bg: #343541;
-            --secondary-bg: #202123;
+            --primary-bg: linear-gradient(135deg, #060b16, #0b1530, #0e1f3f);
+            --secondary-bg: #121419e6;
             --accent: rgb(49, 49, 50);
             --hover-bg: #2a2b32;
             --text: #ffffff;
-            --chat-bg: #444654;
+            --chat-bg: #171a2ab2;
         }
 
         * {
@@ -49,7 +49,7 @@ window.MathJax = {
         }
 
         body {
-            background-color: var(--primary-bg);
+            background: var(--primary-bg);
             color: var(--text);
         }
 
@@ -295,26 +295,6 @@ window.MathJax = {
         }
 
 
-
-        .chat-icons {
-            display: flex;
-            justify-content: space-between;
-            padding: 0rem;
-        }
-
-        .chat-icons button {
-            background: none;
-            border: none;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-        }
-
-        .chat-icons button:hover {
-            background-color: var(--hover-bg);
-        }
-
         /* ----------------------------- */
   /* Add these styles to your existing CSS */
 
@@ -441,7 +421,6 @@ window.MathJax = {
     max-width: 100%;
     display: block;
     margin: 1em 0;
-
     position: relative;
 }
 
@@ -651,6 +630,125 @@ mjx-container {
     }
 }
 
+
+
+.send-loader {
+    border: 2px solid #fcfcfc;
+    border-top: 1px solid var(--primary-col);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin-send 1s linear infinite;
+
+}
+
+@keyframes spin-send {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+
+
+.chat-icons {
+            display: flex;
+            justify-content: space-between;
+            padding: 0rem;
+        }
+
+
+/* Tooltip Container */
+.tooltip-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.text-icon-button {
+    padding: 0.1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    
+}
+
+.text-icon-button.btn-up{
+   /* background:rgb(83, 146, 64); */
+    background: none;
+}
+.text-icon-button.btn-sub{
+    background: rgba(31, 32, 92, 1);
+}
+.text-icon-button.btn-up:hover, .text-icon-button.btn-sub:hover{
+    background:rgba(45, 51, 99, 1);
+    transform: scale(1.1);
+
+}
+
+
+
+
+
+.text-icon-button img {
+    width: 54%;
+    height: 54%;
+    margin-left: 4px;
+}
+
+
+
+/* Tooltip Styling */
+.tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    background-color: #333;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* Tooltip Notch/Arrow */
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    /* Positioned at the bottom of the tooltip */
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+    /* Creates a down arrow */
+}
+
+.text-icon-button:hover+.tooltip {
+    display: block;
+}
+
+
 </style>
 
 
@@ -736,9 +834,11 @@ mjx-container {
                     </div>
                     <div class="flex items-center space-x-4">
                         <button class="icon-btn p-2 rounded">🔗 Share</button>
-                        <button id="deleteChat" class="icon-btn p-2 rounded">
+                    <!--    <button id="deleteChat" class="icon-btn p-2 rounded">
                             🗑️ Delete
                         </button>
+                    -->
+                        
                         <div class="w-8 h-8 rounded-full bg-gray-500">
                             <img src="{% static 'images/profile_logo.png' %}" alt="profile icon"  /> 
                         </div>
@@ -774,11 +874,26 @@ mjx-container {
                                 <textarea id="chatInput" rows="1" placeholder="Type your message..."
                                     class="chat-textarea"></textarea>
 
-                                <div class="chat-icons">
-                                    <!-- Upload button left -->
-                                    <button id="uploadIconCenter">📎</button>
-                                    <button id="submitMessage">➡️</button>
-                                </div>
+
+                    <div class="chat-icons">
+                                <!-- upload -->
+                        <div class="tooltip-container">
+                            <button type="button" class="text-icon-button btn-up" onclick="open_media_fun()" id="uploadIconCenter" >
+                                <i class="fa-solid fa-paperclip"></i>
+                            </button>
+                            <span class="tooltip">Upload</span>
+                        </div>
+                
+                        <!-- Send Button -->
+                        <div class="tooltip-container">
+                            <button type="button" class="text-icon-button btn-sub" onclick="sendMessage()" id="submitMessage" >
+                                <img src="{% static 'images/send_icon_w.png' %}" alt="Send" id="send-icon">
+                                <div id="send-loader" class="send-loader hidden"></div> <!-- Loader placeholder -->
+                            </button>
+                            <span class="tooltip">Send</span>
+                        </div>
+                    </div>
+
                             </div>
                         </div>
                     </div>
@@ -801,10 +916,25 @@ mjx-container {
                                 <!-- Textarea center -->
                                 <textarea id="newChatInput" rows="1" placeholder="Type your message..."
                                     class="chat-textarea"></textarea>
-                                <div class="chat-icons">
-                                    <button id="uploadIconBottom">📎</button>
-                                    <button id="sendMessage">➡️</button>
-                                </div>
+
+                    <div class="chat-icons">
+                                <!-- upload -->
+                        <div class="tooltip-container">
+                            <button type="button" class="text-icon-button btn-up" onclick="open_media_fun()" id="uploadIconBottom" >
+                                <i class="fa-solid fa-paperclip"></i>
+                            </button>
+                            <span class="tooltip">Upload</span>
+                        </div>
+                
+                        <!-- Send Button -->
+                        <div class="tooltip-container">
+                            <button type="button" class="text-icon-button btn-sub" onclick="sendMessage()" id="sendMessage" >
+                                <img src="{% static 'images/send_icon_w.png' %}" alt="Send" id="send-icon2">
+                                <div id="send-loader2" class="send-loader hidden"></div> <!-- Loader placeholder -->
+                            </button>
+                            <span class="tooltip">Send</span>
+                        </div>
+                    </div>
 
                             </div>
                         </div>
@@ -926,6 +1056,16 @@ let lastScrollPosition = 0;
 
 
 function processMarkdown(content) {
+
+        // ✅ Step 0: Clean up invalid LaTeX-style dollar expressions
+    // Replace $2 billion → 2 billion (prevent MathJax rendering)
+    content = content.replace(/(?<!\\)\$(\d[\d,.]*)(\s*(billion|million|trillion|usd|dollars)?)\b/gi, (_, num, suffix) => {
+        return `${num}${suffix}`;
+    });
+
+    // Support escaped \$ → keeps visible $ sign
+    content = content.replace(/\\\$/g, '$');
+
 
     // 🔧 Step 1: Convert bold-only lines into headings dynamically
     content = content.split('\n').map(line => {
@@ -1305,6 +1445,7 @@ function attachCopyButton(messageId, position = "right") {
             // Submit message on Enter, allow Shift+Enter
             function handleKeyPress(inputSelector, buttonSelector) {
                 $(inputSelector).on("keydown", function (e) {
+
                     if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
                         $(buttonSelector).click();
@@ -1343,6 +1484,11 @@ function handleChatSubmit(message, inputSelector) {
 
     // Append user message
     appendMessage("user", message);
+    $("#send-loader2").removeClass("hidden");
+     $("#send-icon2").addClass("hidden");
+     $('#send-button').prop('disabled', true);
+     $('#send-button').css('cursor', 'not-allowed');
+
     $(inputSelector).val("").css("height", "auto");
 
     // Create a new empty bot response div
@@ -1391,6 +1537,11 @@ fetch('chat/', {
                     }
                 }
                 isStreamingResponse = false;
+                $("#send-loader2").addClass("hidden");
+                 $("#send-icon2").removeClass("hidden");
+                $('#send-button2').prop('disabled', false);
+                $('#send-button').css('cursor', 'pointer');
+
                 scrollToBottom();
                 return;
             }
@@ -1416,6 +1567,11 @@ fetch('chat/', {
     return readStream();
 }).catch(err => {
     isStreamingResponse = false;
+    $("#send-icon2").removeClass("hidden");
+    $("#send-loader2").addClass("hidden");
+    $('#send-button2').prop('disabled', false);
+    $('#send-button2').css('cursor', 'pointer');
+
     $(`#${currentBotResponseId}`).html(`<div class="markdown-body">Error: ${err.message}</div>`);
     scrollToBottom();
 });
